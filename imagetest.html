@@ -15,7 +15,8 @@
     </style>
 </head>
 <body>
-
+<div style="font-size: large;">Convert binary image to base64 test</div>
+<br><br>
 <table >
     <tr>
         <th>Type</th>
@@ -65,6 +66,18 @@
         <td id="b64_image_100kb.jpg"></td>
         <td id="b64_image_58kb.jpg"></td>
         <td id="b64_image_27kb.jpg"></td>
+    </tr>
+    <tr>
+        <th>Canvas</th>
+        <td id="can_image_3.9mb.jpg"></td>
+        <td id="can_image_2.1mb.jpg"></td>
+        <td id="can_image_1.5mb.jpg"></td>
+        <td id="can_image_800kb.jpg"></td>
+        <td id="can_image_405kb.jpg"></td>
+        <td id="can_image_252kb.jpg"></td>
+        <td id="can_image_100kb.jpg"></td>
+        <td id="can_image_58kb.jpg"></td>
+        <td id="can_image_27kb.jpg"></td>
     </tr>
     <tr>
         <th>Images</th>
@@ -130,6 +143,18 @@
         <td id="b64_image_100kb.png"></td>
         <td id="b64_image_58kb.png"></td>
         <td id="b64_image_27kb.png"></td>
+    </tr>
+    <tr>
+        <th>Canvas</th>
+        <td id="can_image_3.9mb.png"></td>
+        <td id="can_image_2.1mb.png"></td>
+        <td id="can_image_1.5mb.png"></td>
+        <td id="can_image_800kb.png"></td>
+        <td id="can_image_405kb.png"></td>
+        <td id="can_image_252kb.png"></td>
+        <td id="can_image_100kb.png"></td>
+        <td id="can_image_58kb.png"></td>
+        <td id="can_image_27kb.png"></td>
     </tr>
     <tr>
         <th>Images</th>
@@ -212,10 +237,30 @@
                 reader.onloadend = function(evt){
                     var endTime = performance.now() - reader.time;
                     var path = reader.path;
-                    document.getElementById("fr_" + path[1]).innerHTML = endTime;
+                    document.getElementById("fr_" + reader.path[1]).innerHTML = endTime;
                 }
 
                 reader.readAsDataURL(blob);
+
+                var start3 = performance.now();
+                var canvas = document.createElement('CANVAS'),
+                        ctx = canvas.getContext('2d'),
+                        img = new Image;
+                img.time = start3;
+                img.path = path
+                img.crossOrigin = 'Anonymous';
+                img.onload = function(){
+                    var dataURL;
+                    canvas.height = img.height;
+                    canvas.width = img.width;
+                    ctx.drawImage(img,0,0);
+                    dataURL = canvas.toDataURL('image/png');
+                    var endTime3 = performance.now() - img.time;
+                    console.log("CANVAS TIME " + endTime3 + ", path: " + img.path[1]);
+                    document.getElementById("can_" + img.path[1]).innerHTML = endTime3;
+                    canvas = null;
+                };
+                img.src = xhr.path;
 
                 callback(this.response,count);
             }
