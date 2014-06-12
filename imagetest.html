@@ -56,7 +56,7 @@
         <td id="fr_image_27kb.jpg"></td>
     </tr>
     <tr>
-        <th>Base64</th>
+        <th>Bitwise</th>
         <td id="b64_image_3.9mb.jpg"></td>
         <td id="b64_image_2.1mb.jpg"></td>
         <td id="b64_image_1.5mb.jpg"></td>
@@ -133,7 +133,7 @@
         <td id="fr_image_27kb.png"></td>
     </tr>
     <tr>
-        <th>Base64</th>
+        <th>Bitwise</th>
         <td id="b64_image_3.9mb.png"></td>
         <td id="b64_image_2.1mb.png"></td>
         <td id="b64_image_1.5mb.png"></td>
@@ -221,46 +221,27 @@
                 var path = xhr.path.split("/");
                 document.getElementById("size_" + path[1]).innerHTML = this.response.byteLength;
 
-                var start1 = performance.now();
-                var b64 = _base64ArrayBuffer(this.response);
-                var end1 = performance.now() - start1;
+//                var start1 = performance.now();
+//                var b64 = _base64ArrayBuffer(this.response);
+//                var end1 = performance.now() - start1;
+//
+//                document.getElementById("b64_" + path[1]).innerHTML = end1;
+//                console.log("B64 path: " + xhr.path + ", time: " + end1);
 
-                document.getElementById("b64_" + path[1]).innerHTML = end1;
-                console.log("B64 path: " + xhr.path + ", time: " + end1);
+                doFileReader(this.response,path,function(path,endTime){
+                    document.getElementById("fr_" + path[1]).innerHTML = endTime;
 
-                var start2 = performance.now();
-                var uInt8Array = new Uint8Array(this.response);
-                var blob = new Blob([uInt8Array],{type:"image/jpeg"})
-                var reader = new FileReader();
-                reader.path = path;
-                reader.time = start2;
-                reader.onloadend = function(evt){
-                    var endTime = performance.now() - reader.time;
-                    var path = reader.path;
-                    document.getElementById("fr_" + reader.path[1]).innerHTML = endTime;
-                }
+                    doCanvas(this.response,xhr.path,function(path,endTime){
+                        document.getElementById("can_" + path).innerHTML = endTime;
 
-                reader.readAsDataURL(blob);
+                        var start1 = performance.now();
+                        var b64 = _base64ArrayBuffer(this.response);
+                        var end1 = performance.now() - start1;
 
-                var start3 = performance.now();
-                var canvas = document.createElement('CANVAS'),
-                        ctx = canvas.getContext('2d'),
-                        img = new Image;
-                img.time = start3;
-                img.path = path
-                img.crossOrigin = 'Anonymous';
-                img.onload = function(){
-                    var dataURL;
-                    canvas.height = img.height;
-                    canvas.width = img.width;
-                    ctx.drawImage(img,0,0);
-                    dataURL = canvas.toDataURL('image/png');
-                    var endTime3 = performance.now() - img.time;
-                    console.log("CANVAS TIME " + endTime3 + ", path: " + img.path[1]);
-                    document.getElementById("can_" + img.path[1]).innerHTML = endTime3;
-                    canvas = null;
-                };
-                img.src = xhr.path;
+                        document.getElementById("b64_" + path).innerHTML = end1;
+                        console.log("B64 path: " + path + ", time: " + end1);
+                    }.bind(this))
+                }.bind(this))
 
                 callback(this.response,count);
             }
@@ -269,6 +250,45 @@
             }
         }
         xhr.send();
+    }
+
+    function doFileReader(response,path,callback){
+        var start2 = performance.now();
+        var uInt8Array = new Uint8Array(response);
+        var blob = new Blob([uInt8Array],{type:"image/jpeg"})
+        var reader = new FileReader();
+        reader.path = path;
+        reader.time = start2;
+        reader.onloadend = function(evt){
+            var endTime = performance.now() - reader.time;
+            var path = reader.path;
+            callback(path,endTime);
+        }
+
+        reader.readAsDataURL(blob);
+    }
+
+    function doCanvas(response,path,callback){
+        var start3 = performance.now();
+        var canvas = document.createElement('CANVAS');
+        var ctx = canvas.getContext('2d');
+        var img = new Image;
+        img.time = start3;
+        img.path = path
+        img.crossOrigin = 'Anonymous';
+        img.onload = function(){
+            var dataURL;
+            canvas.height = img.height;
+            canvas.width = img.width;
+            ctx.drawImage(img,img.height,img.width);
+            dataURL = canvas.toDataURL('image/png');
+            var endTime3 = performance.now() - img.time;
+            var path = img.path.split("/");
+            console.log("CANVAS TIME " + endTime3 + ", path: " + path[1]);
+            callback(path[1],endTime3);
+            canvas = null;
+        };
+        img.src = path;
     }
 
     /**
