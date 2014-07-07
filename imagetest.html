@@ -257,10 +257,12 @@
 
                         document.getElementById("b64_" + path).innerHTML = end1;
                         console.log("B64 path: " + path + ", time: " + end1);
+
+                        callback(this.response,count);
                     }.bind(this))
                 }.bind(this))
 
-                callback(this.response,count);
+//                callback(this.response,count);
             }
             else{
                 console.log("Problem retrieving image " + JSON.stringify(e))
