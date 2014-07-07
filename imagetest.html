@@ -16,6 +16,8 @@
 </head>
 <body>
 <div style="font-size: large;">Convert binary image to base64 test</div>
+<br>
+<button onclick="runFileReader()">Start Tests</button>
 <br><br>
 <table >
     <tr>
@@ -191,6 +193,7 @@
 
     var i = 0;
     loop();
+
     function loop(){
 
         getImageFromServer("img/" + imageArrJPG[i],i,function(result,count){
