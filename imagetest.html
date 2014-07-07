@@ -235,34 +235,24 @@
         xhr.onload = function(e){
             if(this.status == 200){
                 console.log("Image size: " + this.response.byteLength + " bytes")
-                var path = xhr.path.split("/");
-                document.getElementById("size_" + path[1]).innerHTML = this.response.byteLength;
+                var path1 = xhr.path.split("/");
+                document.getElementById("size_" + path1[1]).innerHTML = this.response.byteLength;
+                doCanvas(this.response,xhr.path,function(path,endTime){
+                    document.getElementById("can_" + path).innerHTML = endTime;
 
-//                var start1 = performance.now();
-//                var b64 = _base64ArrayBuffer(this.response);
-//                var end1 = performance.now() - start1;
-//
-//                document.getElementById("b64_" + path[1]).innerHTML = end1;
-//                console.log("B64 path: " + xhr.path + ", time: " + end1);
-
-                doFileReader(this.response,path,function(path,endTime){
-                    document.getElementById("fr_" + path[1]).innerHTML = endTime;
-
-                    doCanvas(this.response,xhr.path,function(path,endTime){
-                        document.getElementById("can_" + path).innerHTML = endTime;
+                    doFileReader(this.response,path1,function(path,endTime){
+                        document.getElementById("fr_" + path[1]).innerHTML = endTime;
 
                         var start1 = performance.now();
                         var b64 = _base64ArrayBuffer(this.response);
                         var end1 = performance.now() - start1;
 
-                        document.getElementById("b64_" + path).innerHTML = end1;
-                        console.log("B64 path: " + path + ", time: " + end1);
+                        document.getElementById("b64_" + path[1]).innerHTML = end1;
+                        console.log("B64 path: " + path[1] + ", time: " + end1);
 
                         callback(this.response,count);
                     }.bind(this))
                 }.bind(this))
-
-//                callback(this.response,count);
             }
             else{
                 console.log("Problem retrieving image " + JSON.stringify(e))
