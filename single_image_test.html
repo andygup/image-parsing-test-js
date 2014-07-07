@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <style>
+        table,th,td
+        {
+            border:1px solid black;
+        }
+        .images{
+            height: 50px;
+            width: 50px;
+        }
+    </style>
+</head>
+<body>
+<div style="font-size: large;">Convert binary image to base64 test using different coding patterns.</div>
+<br>
+<button onclick="testRunner()">Start Tests</button>
+<br><br>
+<table>
+    <tr>
+        <th>Test</th>
+        <th>FileReader</th>
+        <th>Canvas</th>
+        <th>Bitwise</th>
+        <th>FileReader</th>
+        <th>Canvas</th>
+        <th>Bitwise</th>
+        <th>FileReader</th>
+        <th>Canvas</th>
+        <th>Bitwise</th>
+    </tr>
+    <tr>
+        <th>type</th>
+        <td id="fileReaderType1"></td>
+        <td id="canvasType1"></td>
+        <td id="bitwiseType1"></td>
+        <td id="fileReaderType2"></td>
+        <td id="canvasType2"></td>
+        <td id="bitwiseType2"></td>
+        <td id="fileReaderType3"></td>
+        <td id="canvasType3"></td>
+        <td id="bitwiseType3"></td>
+    </tr>
+    <tr>
+        <th>Size</th>
+        <td id="fileReaderSize1"></td>
+        <td id="canvasSize1"></td>
+        <td id="bitwiseSize1"></td>
+        <td id="fileReaderSize2"></td>
+        <td id="canvasSize2"></td>
+        <td id="bitwiseSize2"></td>
+        <td id="fileReaderSize3"></td>
+        <td id="canvasSize3"></td>
+        <td id="bitwiseSize3"></td>
+    </tr>
+    <tr>
+        <th>Avg. (ms)</th>
+        <td id="fileReaderMS1"></td>
+        <td id="canvasMS1"></td>
+        <td id="bitwiseMS1"></td>
+        <td id="fileReaderMS2"></td>
+        <td id="canvasMS2"></td>
+        <td id="bitwiseMS2"></td>
+        <td id="fileReaderMS3"></td>
+        <td id="canvasMS3"></td>
+        <td id="bitwiseMS3"></td>
+    </tr>
+</table>
+
+
+<script>
+
+var imageArrJPG = ["image_1.5mb.jpg","image_3.9mb.jpg","image_2.1mb.jpg","image_27kb.jpg","image_100kb.jpg","image_252kb.jpg","image_405kb.jpg","image_58kb.jpg","image_800kb.jpg"];
+var imageArrPNG = ["image_1.5mb.png","image_3.9mb.png","image_2.1mb.png","image_27kb.png","image_100kb.png","image_252kb.png","image_405kb.png","image_58kb.png","image_800kb.png"];
+var jpgCounterArray = [];
+var pngCounterArray = [];
+var bitwiseCounterArray = [];
+var fileReaderCounterArray = [];
+var canvasCounterArray = [];
+
+window.performance = window.performance || {};
+performance.now = (function () {
+    return performance.now ||
+            performance.mozNow ||
+            performance.msNow ||
+            performance.oNow ||
+            performance.webkitNow ||
+            function () {
+                return new Date().getTime();
+            };
+})();
+
+var i = 0;
+var fileReaderAverage = 0;
+var canvasAverage = 0;
+var base64Average = 0;
+var NUMBER_LOOPS = 20;
+
+function testRunner(){
+    if(fileReaderAverage != 0) reset();
+    runFileReader("img/image_405kb.gif",1,function(){
+        reset();
+
+        console.log("Round 1 DONE")
+
+        runFileReader("img/image_405kb.png",2,function(){
+            reset();
+
+            console.log("Round 2 DONE")
+
+            runFileReader("img/image_405kb.jpg",3,function(){
+                console.log("Round 3 DONE")
+            })
+        })
+    })
+}
+
+function reset(){
+    i = 0;
+    fileReaderAverage = 0;
+    canvasAverage = 0;
+    base64Average = 0;
+    bitwiseCounterArray = [];
+    fileReaderCounterArray = [];
+    canvasCounterArray = [];
+}
+
+function runFileReader(image,spec,callback){
+//    getImageFromServerDoFileReader("img/" + imageArrPNG[5],i,function(average,count){
+
+    getImageFromServerDoFileReader(image,spec,function(average){
+        fileReaderCounterArray.push(average);
+
+        if(fileReaderCounterArray.length == NUMBER_LOOPS){
+            console.log("FileReader done testing. Total millis " + average);
+            console.log("AVERAGE: " + (average / NUMBER_LOOPS))
+            document.getElementById("fileReaderMS" + spec).innerHTML = (average / 20).toFixed(4);
+            runCanvas(image,spec,callback);
+        }
+        else{
+            i++;
+            runFileReader(image,spec,callback);
+        }
+    })
+}
+
+function runCanvas(image,spec,callback){
+    getImageFromServerDoCanvas(image,spec,function(average,count){
+        canvasCounterArray.push(count);
+
+        if(canvasCounterArray.length == NUMBER_LOOPS){
+            console.log("Canvas done testing. Total millis " + average);
+            console.log("AVERAGE: " + (average / NUMBER_LOOPS))
+            document.getElementById("canvasMS" + spec).innerHTML = (average / 20).toFixed(4);
+            runBitwise(image,spec,callback);
+        }
+        else{
+            i++;
+            runCanvas(image,spec,callback);
+        }
+    })
+}
+
+function runBitwise(image,spec,callback){
+    getImageFromServerDoBitwise(image,spec,function(average){
+        bitwiseCounterArray.push(average);
+
+        if(bitwiseCounterArray.length == NUMBER_LOOPS){
+            console.log("Bitwise done testing. Total millis " + average);
+            console.log("AVERAGE: " + (average / NUMBER_LOOPS))
+            document.getElementById("bitwiseMS" + spec).innerHTML = (average / 20).toFixed(4);
+            callback();
+        }
+        else{
+            i++;
+            runBitwise(image,spec,callback);
+        }
+    })
+}
+
+function getImageFromServerDoFileReader(/* String */ path, spec, callback){
+    var xhr = new XMLHttpRequest();
+    xhr.path = path;
+    xhr.open("GET",path,true);
+    xhr.responseType = "arraybuffer";
+    xhr.onload = function(e){
+        if(this.status == 200){
+            getImageType(this.response,function(result){
+                console.log("TYPE: " + result)
+                document.getElementById("fileReaderType" + spec).innerHTML = result;
+            })
+            console.log("Image size: " + this.response.byteLength + " bytes")
+            var path1 = xhr.path.split("/");
+            document.getElementById("fileReaderSize" + spec).innerHTML = this.response.byteLength;
+            doFileReader(this.response,xhr.path,function(path,endTime){
+                fileReaderAverage += endTime;
+                callback(fileReaderAverage);
+            }.bind(this))
+        }
+        else{
+            console.log("Problem retrieving image " + JSON.stringify(e))
+        }
+    }
+    xhr.send();
+}
+
+function getImageFromServerDoCanvas(/* String */ path, spec, callback){
+    var xhr = new XMLHttpRequest();
+    xhr.path = path;
+    xhr.open("GET",path,true);
+    xhr.responseType = "arraybuffer";
+    xhr.onload = function(e){
+        if(this.status == 200){
+            getImageType(this.response,function(result){
+                console.log("TYPE: " + result)
+                document.getElementById("canvasType" + spec).innerHTML = result;
+            })
+            console.log("Image size: " + this.response.byteLength + " bytes")
+            var path1 = xhr.path.split("/");
+            document.getElementById("canvasSize" + spec).innerHTML = this.response.byteLength;
+            doCanvas(this.response,xhr.path,function(path,endTime){
+                canvasAverage += endTime;
+                callback(canvasAverage);
+            }.bind(this))
+        }
+        else{
+            console.log("Problem retrieving image " + JSON.stringify(e))
+        }
+    }
+    xhr.send();
+}
+
+function getImageFromServerDoBitwise(/* String */ path, spec, callback){
+    var xhr = new XMLHttpRequest();
+    xhr.path = path;
+    xhr.open("GET",path,true);
+    xhr.responseType = "arraybuffer";
+    xhr.onload = function(e){
+        if(this.status == 200){
+            getImageType(this.response,function(result){
+                console.log("TYPE: " + result)
+                document.getElementById("bitwiseType" + spec ).innerHTML = result;
+            })
+            console.log("Image size: " + this.response.byteLength + " bytes")
+            document.getElementById("bitwiseSize" + spec).innerHTML = this.response.byteLength;
+            var start1 = performance.now();
+            var b64 = _base64ArrayBuffer(this.response);
+            var endTime =  performance.now() - start1;
+            base64Average += endTime;
+            console.log("BITWISE TIME: " + endTime)
+            callback(base64Average)
+        }
+        else{
+            console.log("Problem retrieving image " + JSON.stringify(e))
+        }
+    }
+    xhr.send();
+}
+
+function doFileReader(response,path,callback){
+    var start2 = performance.now();
+    var uInt8Array = new Uint8Array(response);
+    var blob = new Blob([uInt8Array],{type:"image/jpeg"})
+    var reader = new FileReader();
+    reader.path = path;
+    reader.time = start2;
+    reader.onloadend = function(evt){
+        var endTime = performance.now() - reader.time;
+        console.log("FILEREADER TIME: " + endTime)
+        var path = reader.path;
+        callback(path,endTime);
+    }
+
+    reader.readAsDataURL(blob);
+}
+
+function doCanvas(response,path,callback){
+    var start3 = performance.now();
+    var canvas = document.createElement('CANVAS');
+    var ctx = canvas.getContext('2d');
+    var img = new Image;
+    img.time = start3;
+    img.path = path
+    img.crossOrigin = 'Anonymous';
+    img.onload = function(){
+        var dataURL;
+        canvas.height = img.height;
+        canvas.width = img.width;
+        ctx.drawImage(img,img.height,img.width);
+        dataURL = canvas.toDataURL('image/png');
+        var endTime3 = performance.now() - img.time;
+        var path = img.path.split("/");
+        console.log("CANVAS TIME " + endTime3 + ", path: " + path[1]);
+        callback(path[1],endTime3);
+        canvas = null;
+    };
+    img.src = path;
+}
+
+/**
+ * Get image type via magic number.
+ * Extracts first 2 bytes and converts to hex.
+ * More info on magic numbers: http://www.garykessler.net/library/file_sigs.html
+ */
+function getImageType(arrayBuffer,callback){
+    var type = "";
+    var dv = new DataView(arrayBuffer,0,5);
+    var nume1 = dv.getUint8(0,true);
+    var nume2 = dv.getUint8(1,true);
+    var hex = nume1.toString(16) + nume2.toString(16) ;
+
+    switch(hex){
+        case "8950":
+            type = "image/png";
+            break;
+        case "4749":
+            type = "image/gif";
+            break;
+        case "424d":
+            type = "image/bmp";
+            break;
+        case "ffd8":
+            type = "image/jpg";
+            break;
+        default:
+            type = null;
+            break;
+    }
+    callback(type);
+}
+
+/**
+ * Convert an ArrayBuffer to base64. My testing shows this to be
+ * much faster than combining Blobs and btoa().
+ * ALL CREDITS: https://gist.github.com/jonleighton/958841
+ * NO licensing listed at the gist repo.
+ * @param arrayBuffer
+ * @returns {string}
+ * @private
+ */
+function _base64ArrayBuffer(arrayBuffer) {
+    var base64    = ''
+    var encodings = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
+
+    var bytes         = new Uint8Array(arrayBuffer)
+    var byteLength    = bytes.byteLength
+    var byteRemainder = byteLength % 3
+    var mainLength    = byteLength - byteRemainder
+
+    var a, b, c, d
+    var chunk
+
+    // Main loop deals with bytes in chunks of 3
+    for (var i = 0; i < mainLength; i = i + 3) {
+        // Combine the three bytes into a single integer
+        chunk = (bytes[i] << 16) | (bytes[i + 1] << 8) | bytes[i + 2]
+
+        // Use bitmasks to extract 6-bit segments from the triplet
+        a = (chunk & 16515072) >> 18 // 16515072 = (2^6 - 1) << 18
+        b = (chunk & 258048)   >> 12 // 258048   = (2^6 - 1) << 12
+        c = (chunk & 4032)     >>  6 // 4032     = (2^6 - 1) << 6
+        d = chunk & 63               // 63       = 2^6 - 1
+
+        // Convert the raw binary segments to the appropriate ASCII encoding
+        base64 += encodings[a] + encodings[b] + encodings[c] + encodings[d]
+    }
+
+    // Deal with the remaining bytes and padding
+    if (byteRemainder == 1) {
+        chunk = bytes[mainLength]
+
+        a = (chunk & 252) >> 2 // 252 = (2^6 - 1) << 2
+
+        // Set the 4 least significant bits to zero
+        b = (chunk & 3)   << 4 // 3   = 2^2 - 1
+
+        base64 += encodings[a] + encodings[b] + '=='
+    } else if (byteRemainder == 2) {
+        chunk = (bytes[mainLength] << 8) | bytes[mainLength + 1]
+
+        a = (chunk & 64512) >> 10 // 64512 = (2^6 - 1) << 10
+        b = (chunk & 1008)  >>  4 // 1008  = (2^6 - 1) << 4
+
+        // Set the 2 least significant bits to zero
+        c = (chunk & 15)    <<  2 // 15    = 2^4 - 1
+
+        base64 += encodings[a] + encodings[b] + encodings[c] + '='
+    }
+
+    return base64
+}
+</script>
+
+</body>
+</html>
