@@ -175,6 +175,7 @@
     var imageArrJPG = ["image_1.5mb.jpg","image_3.9mb.jpg","image_2.1mb.jpg","image_27kb.jpg","image_100kb.jpg","image_252kb.jpg","image_405kb.jpg","image_58kb.jpg","image_800kb.jpg"];
     var imageArrPNG = ["image_1.5mb.png","image_3.9mb.png","image_2.1mb.png","image_27kb.png","image_100kb.png","image_252kb.png","image_405kb.png","image_58kb.png","image_800kb.png"];
     var jpgCounterArray = [];
+    var pngCounterArray = [];
 
     window.performance = window.performance || {};
     performance.now = (function () {
@@ -198,7 +199,8 @@
             jpgCounterArray.push(count);
 
             if(jpgCounterArray.length == imageArrJPG.length){
-                console.log("JPG's finished start testing PNGs")
+                console.log("JPG's finished start testing PNGs");
+                i = 0;
                 runPNGImages();
             }
             else{
@@ -209,12 +211,20 @@
     }
 
     function runPNGImages(){
+        getImageFromServer("img/" + imageArrPNG[i],i,function(result,count){
+            console.log("RESULT " + result);
 
-        for(var i = 0; i < imageArrJPG.length; i++){
-            getImageFromServer("img/" + imageArrPNG[i],i,function(result){
-                console.log("RESULT " + result);
-            })
-        }
+            pngCounterArray.push(count);
+
+            if(pngCounterArray.length == imageArrPNG.length){
+                console.log("PNG's finished testing.");
+            }
+            else{
+                i++;
+                runPNGImages();
+            }
+
+        })
     }
 
     function getImageFromServer(/* String */ path, count, callback){
