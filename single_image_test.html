@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <title></title>
     <style>
+        body{
+            font-family: arial, sans-serif;
+        }
         table,th,td
         {
             border:1px solid black;
@@ -15,7 +18,7 @@
     </style>
 </head>
 <body>
-<div style="font-size: large;">Loop tests on specific image types.</div>
+<div style="font-size: large;">Loop tests on specific image types. Default 20 loops per test.</div>
 <br>
 <button onclick="testRunner()">Start Tests</button>
 <br><br>
@@ -25,50 +28,81 @@
         <th>FileReader</th>
         <th>Canvas</th>
         <th>Bitwise</th>
-        <th>FileReader</th>
-        <th>Canvas</th>
-        <th>Bitwise</th>
-        <th>FileReader</th>
-        <th>Canvas</th>
-        <th>Bitwise</th>
     </tr>
     <tr>
         <th>type</th>
         <td id="fileReaderType1"></td>
         <td id="canvasType1"></td>
         <td id="bitwiseType1"></td>
-        <td id="fileReaderType2"></td>
-        <td id="canvasType2"></td>
-        <td id="bitwiseType2"></td>
-        <td id="fileReaderType3"></td>
-        <td id="canvasType3"></td>
-        <td id="bitwiseType3"></td>
     </tr>
     <tr>
         <th>Size</th>
         <td id="fileReaderSize1"></td>
         <td id="canvasSize1"></td>
         <td id="bitwiseSize1"></td>
-        <td id="fileReaderSize2"></td>
-        <td id="canvasSize2"></td>
-        <td id="bitwiseSize2"></td>
-        <td id="fileReaderSize3"></td>
-        <td id="canvasSize3"></td>
-        <td id="bitwiseSize3"></td>
     </tr>
     <tr>
         <th>Avg. (ms)</th>
         <td id="fileReaderMS1"></td>
         <td id="canvasMS1"></td>
         <td id="bitwiseMS1"></td>
+    </tr>
+</table>
+<br><br>
+<table>
+    <tr>
+        <th>Test</th>
+        <th>FileReader</th>
+        <th>Canvas</th>
+        <th>Bitwise</th>
+    </tr>
+    <tr>
+        <th>Type</th>
+        <td id="fileReaderType2"></td>
+        <td id="canvasType2"></td>
+        <td id="bitwiseType2"></td>
+    </tr>
+    <tr>
+        <th>Size</th>
+        <td id="fileReaderSize2"></td>
+        <td id="canvasSize2"></td>
+        <td id="bitwiseSize2"></td>
+    </tr>
+    <tr>
+        <th>Avg. (ms)</th>
         <td id="fileReaderMS2"></td>
         <td id="canvasMS2"></td>
         <td id="bitwiseMS2"></td>
+    </tr>
+</table>
+<br><br>
+<table>
+    <tr>
+        <th>Test</th>
+        <th>FileReader</th>
+        <th>Canvas</th>
+        <th>Bitwise</th>
+    </tr>
+    <tr>
+        <th>Type</th>
+        <td id="fileReaderType3"></td>
+        <td id="canvasType3"></td>
+        <td id="bitwiseType3"></td>
+    </tr>
+    <tr>
+        <th>Size</th>
+        <td id="fileReaderSize3"></td>
+        <td id="canvasSize3"></td>
+        <td id="bitwiseSize3"></td>
+    </tr>
+    <tr>
+        <th>Avg. (ms)</th>
         <td id="fileReaderMS3"></td>
         <td id="canvasMS3"></td>
         <td id="bitwiseMS3"></td>
     </tr>
 </table>
+
 
 
 <script>
