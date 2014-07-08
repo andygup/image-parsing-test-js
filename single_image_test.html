@@ -98,6 +98,7 @@ var fileReaderAverage = 0;
 var canvasAverage = 0;
 var base64Average = 0;
 var NUMBER_LOOPS = 20;
+var imageType = null;
 
 function testRunner(){
     if(fileReaderAverage != 0) reset();
@@ -188,10 +189,11 @@ function getImageFromServerDoFileReader(/* String */ path, spec, callback){
     xhr.responseType = "arraybuffer";
     xhr.onload = function(e){
         if(this.status == 200){
-            getImageType(this.response,function(result){
-                console.log("TYPE: " + result)
-                document.getElementById("fileReaderType" + spec).innerHTML = result;
-            })
+            var imageType = getImageType(this.response);
+
+            console.log("TYPE: " + imageType)
+            document.getElementById("fileReaderType" + spec).innerHTML = imageType;
+
             console.log("Image size: " + this.response.byteLength + " bytes")
             var path1 = xhr.path.split("/");
             document.getElementById("fileReaderSize" + spec).innerHTML = this.response.byteLength;
@@ -214,10 +216,10 @@ function getImageFromServerDoCanvas(/* String */ path, spec, callback){
     xhr.responseType = "arraybuffer";
     xhr.onload = function(e){
         if(this.status == 200){
-            getImageType(this.response,function(result){
-                console.log("TYPE: " + result)
-                document.getElementById("canvasType" + spec).innerHTML = result;
-            })
+            var imageType = getImageType(this.response);
+            console.log("TYPE: " + imageType)
+            document.getElementById("canvasType" + spec).innerHTML = imageType;
+
             console.log("Image size: " + this.response.byteLength + " bytes")
             var path1 = xhr.path.split("/");
             document.getElementById("canvasSize" + spec).innerHTML = this.response.byteLength;
@@ -240,10 +242,10 @@ function getImageFromServerDoBitwise(/* String */ path, spec, callback){
     xhr.responseType = "arraybuffer";
     xhr.onload = function(e){
         if(this.status == 200){
-            getImageType(this.response,function(result){
-                console.log("TYPE: " + result)
-                document.getElementById("bitwiseType" + spec ).innerHTML = result;
-            })
+            var imageType = getImageType(this.response);
+            console.log("TYPE: " + imageType)
+            document.getElementById("bitwiseType" + spec ).innerHTML = imageType;
+
             console.log("Image size: " + this.response.byteLength + " bytes")
             document.getElementById("bitwiseSize" + spec).innerHTML = this.response.byteLength;
             var start1 = performance.now();
@@ -278,6 +280,7 @@ function doFileReader(response,path,callback){
 }
 
 function doCanvas(response,path,callback){
+
     var start3 = performance.now();
     var canvas = document.createElement('CANVAS');
     var ctx = canvas.getContext('2d');
@@ -305,7 +308,7 @@ function doCanvas(response,path,callback){
  * Extracts first 2 bytes and converts to hex.
  * More info on magic numbers: http://www.garykessler.net/library/file_sigs.html
  */
-function getImageType(arrayBuffer,callback){
+function getImageType(arrayBuffer){
     var type = "";
     var dv = new DataView(arrayBuffer,0,5);
     var nume1 = dv.getUint8(0,true);
@@ -329,7 +332,7 @@ function getImageType(arrayBuffer,callback){
             type = null;
             break;
     }
-    callback(type);
+    return type;
 }
 
 /**
