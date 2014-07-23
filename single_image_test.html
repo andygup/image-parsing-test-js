@@ -315,7 +315,6 @@ function doFileReader(response,path,callback){
 }
 
 function doCanvas(response,path,callback){
-    var imageType = getImageType(response);
     var start3 = performance.now();
     var canvas = document.createElement('CANVAS');
     var ctx = canvas.getContext('2d');
@@ -324,11 +323,9 @@ function doCanvas(response,path,callback){
     img.path = path
     img.crossOrigin = 'Anonymous';
     img.onload = function(){
-        var dataURL;
         canvas.height = img.height;
         canvas.width = img.width;
         ctx.drawImage(img,img.height,img.width);
-        dataURL = canvas.toDataURL(imageType);
         var endTime3 = performance.now() - img.time;
         var path = img.path.split("/");
         console.log("CANVAS TIME " + endTime3 + ", path: " + path[1]);
